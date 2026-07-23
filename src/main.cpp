@@ -45,36 +45,6 @@ static void disp_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *px
     lv_disp_flush_ready(drv);
 }
 
-/*
- * Raw TFT_eSPI reference frame, drawn before LVGL touches anything.
- * Held for a few seconds so the panel's real addressable area can be compared
- * against the UI that follows. Set SHOW_SELFTEST to 0 once geometry is settled.
- */
-#define SHOW_SELFTEST 0
-
-static void display_selftest(void)
-{
-    const int16_t w = tft.width();
-    const int16_t h = tft.height();
-
-    tft.fillScreen(TFT_MAGENTA);          /* nothing in the UI is magenta */
-    tft.drawRect(0, 0, w, h, TFT_WHITE);
-    tft.fillRect(0, 0, 24, 24, TFT_RED);            /* top-left     */
-    tft.fillRect(w - 24, 0, 24, 24, TFT_GREEN);     /* top-right    */
-    tft.fillRect(0, h - 24, 24, 24, TFT_BLUE);      /* bottom-left  */
-    tft.fillRect(w - 24, h - 24, 24, 24, TFT_CYAN); /* bottom-right */
-
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setTextSize(2);
-    tft.setCursor(20, h / 2 - 10);
-    tft.printf("%d x %d", w, h);
-
-    Serial.printf("[selftest] tft reports %d x %d, rotation %d\n",
-                  w, h, tft.getRotation());
-    Serial.flush();
-    delay(4000);
-}
-
 static void display_init(void)
 {
     pinMode(TFT_BL, OUTPUT);
@@ -82,11 +52,6 @@ static void display_init(void)
 
     tft.begin();
     tft.setRotation(1);              /* landscape; use 3 to flip 180 deg */
-
-#if SHOW_SELFTEST
-    display_selftest();
-#endif
-
     tft.fillScreen(TFT_BLACK);
 
     lv_init();
